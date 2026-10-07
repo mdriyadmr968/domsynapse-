@@ -8,9 +8,13 @@
     "build": "pnpm --filter \"@domsynapse/*\" run build",
     "test": "pnpm --filter \"@domsynapse/*\" run test",
     "lint": "pnpm --filter \"@domsynapse/*\" run lint",
-    "clean": "pnpm --recursive run clean"
+    "clean": "pnpm --recursive run clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.12",
     "typescript": "^5.7.3"
   }
 }

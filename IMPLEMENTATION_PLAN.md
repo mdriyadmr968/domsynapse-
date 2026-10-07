@@ -100,9 +100,11 @@
   - Framework adapters: `createDomSynapseNextHandler` (Next.js App Router), `createDomSynapseExpressHandler` (Express), and `createDomSynapseHonoHandler` (Hono).
   - 10 Vitest tests (54 total workspace tests) and full ESM + CJS + DTS bundle.
 
-- [ ] **Milestone 5: Interactive Demo App & NPM Release**
-  - Next.js demo testing multi-step forms and on-page copilot assist.
-  - Changesets CI/CD workflow for automated NPM publishing.
+- [x] **Milestone 5: Interactive Demo App & NPM Release** *(COMPLETED)*
+  - Next.js 14 App Router interactive playground (`apps/demo`) testing onboarding forms, PII shielding, and spotlighting.
+  - Changesets release workflow configured (`.changeset/config.json`).
+  - GitHub Actions CI/CD workflows (`.github/workflows/ci.yml` and `.github/workflows/release.yml`) for automated testing and NPM publishing.
+  - 100% build pass across all packages and demo application, 54 passing Vitest tests.
 
 ---
 
