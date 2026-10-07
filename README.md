@@ -123,6 +123,17 @@ export const POST = createDomSynapseNextHandler({
 
 ---
 
+## Documentation
+
+- 🚀 [Getting Started Guide](./docs/guides/getting-started.md) - Quick tutorial integrating DomSynapse into React/Next.js.
+- 📖 [Complete API Reference](./docs/api-reference.md) - Detailed options, props, types, and methods.
+- 🏛️ [Architecture & Data Flow](./docs/architecture.md) - Deep dive into DOM serialization, state machines, and streaming.
+- 🛡️ [Security & Privacy Guide](./docs/security.md) - PII redaction, prompt injection defense, and CSP headers.
+- 🧩 [Browser Extension Guide](./docs/guides/browser-extension.md) - Chrome, Edge, and Brave setup.
+- 🤝 [Contributing Guidelines](./CONTRIBUTING.md) - Monorepo development, testing, and changeset releases.
+
+---
+
 ## Running the Demo
 
 ```bash
