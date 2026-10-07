@@ -177,6 +177,11 @@ export interface DomSynapseDockProps {
   placeholder?: string;
   suggestedPrompts?: string[];
   className?: string;
+  /**
+   * If true, disables auto-mounting SpotlightOverlay and DiffConfirmCard
+   * (useful when you render them customly in your layout)
+   */
+  hideOverlayComponents?: boolean;
 }
 
 export interface SpotlightOverlayProps {

@@ -94,7 +94,9 @@ export class ActionDispatcher {
               continue;
             }
           } else if (field.name) {
-            targetEl = this.doc.querySelector(`[name="${field.name}"]`);
+            targetEl =
+              this.doc.querySelector(`[name="${field.name}"][value="${field.value}"]`) ||
+              this.doc.querySelector(`[name="${field.name}"]`);
           }
 
           if (!targetEl) {

@@ -58,7 +58,9 @@ export class ActionValidator {
               continue;
             }
           } else if (field.name) {
-            el = this.doc.querySelector(`[name="${field.name}"]`);
+            el =
+              this.doc.querySelector(`[name="${field.name}"][value="${field.value}"]`) ||
+              this.doc.querySelector(`[name="${field.name}"]`);
           }
 
           if (!el) {

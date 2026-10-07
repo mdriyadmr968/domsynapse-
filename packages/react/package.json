@@ -15,6 +15,10 @@
     },
     "./styles.css": "./dist/styles.css"
   },
+  "sideEffects": [
+    "*.css",
+    "./dist/styles.css"
+  ],
   "files": [
     "dist"
   ],

@@ -16,6 +16,7 @@ export function DomSynapseDock({
   placeholder = 'Ask anything about this page...',
   suggestedPrompts = DEFAULT_SUGGESTIONS,
   className = '',
+  hideOverlayComponents = false,
 }: DomSynapseDockProps) {
   const {
     isOpen,
@@ -46,6 +47,18 @@ export function DomSynapseDock({
     }
   }, [messages, isOpen]);
 
+  // Global Escape key dismiss for accessible keyboard navigation
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleGlobalEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalEsc);
+    return () => window.removeEventListener('keydown', handleGlobalEsc);
+  }, [isOpen, setIsOpen]);
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
     const text = input;
@@ -57,6 +70,9 @@ export function DomSynapseDock({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsOpen(false);
     }
   };
 
@@ -65,8 +81,12 @@ export function DomSynapseDock({
 
   return (
     <>
-      <SpotlightOverlay />
-      <DiffConfirmCard />
+      {!hideOverlayComponents && (
+        <>
+          <SpotlightOverlay />
+          <DiffConfirmCard />
+        </>
+      )}
 
       <div className={`synapse-dock-container ${posClass} ${className}`}>
         {isOpen ? (
@@ -257,6 +277,9 @@ export function DomSynapseDock({
             className="synapse-launcher-btn"
             onClick={() => setIsOpen(true)}
             data-testid="synapse-launcher"
+            aria-expanded={false}
+            aria-haspopup="dialog"
+            aria-label={title}
           >
             <svg
               viewBox="0 0 24 24"

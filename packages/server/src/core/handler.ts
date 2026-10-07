@@ -82,15 +82,18 @@ export class DomSynapseHandler {
     req: DomSynapseServerRequest,
     fetchFn: typeof fetch
   ): Promise<DomSynapseServerResponse> {
-    const apiKey =
+    let apiKey =
       this.options.apiKey ||
       (typeof process !== 'undefined' ? process.env?.OPENAI_API_KEY : undefined);
 
-    if (!apiKey) {
-      throw new Error('Missing OpenAI API key. Set OPENAI_API_KEY in environment or pass apiKey option.');
-    }
-
     const baseURL = this.options.baseURL || 'https://api.openai.com/v1';
+
+    if (!apiKey) {
+      if (baseURL.includes('api.openai.com')) {
+        throw new Error('Missing OpenAI API key. Set OPENAI_API_KEY in environment or pass apiKey option.');
+      }
+      apiKey = 'local-custom-provider';
+    }
     const model = this.options.model || 'gpt-4o';
     const systemPrompt = buildSystemPrompt(req.pageContext, this.options.customInstructions);
 

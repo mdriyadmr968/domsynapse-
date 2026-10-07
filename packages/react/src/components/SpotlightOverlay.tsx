@@ -18,16 +18,14 @@ export function SpotlightOverlay({ className = '' }: SpotlightOverlayProps) {
       }
 
       const rect = el.getBoundingClientRect();
-      const scrollX = window.scrollX || window.pageXOffset;
-      const scrollY = window.scrollY || window.pageYOffset;
 
       setBounds({
-        top: rect.top + scrollY,
-        left: rect.left + scrollX,
+        top: rect.top,
+        left: rect.left,
         width: rect.width,
         height: rect.height,
-        bottom: rect.bottom + scrollY,
-        right: rect.right + scrollX,
+        bottom: rect.bottom,
+        right: rect.right,
       });
     } catch {
       setBounds(null);
@@ -41,14 +39,22 @@ export function SpotlightOverlay({ className = '' }: SpotlightOverlayProps) {
     }
 
     updateBounds();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        dismissSpotlight();
+      }
+    };
+
     window.addEventListener('resize', updateBounds);
     window.addEventListener('scroll', updateBounds, true);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('resize', updateBounds);
       window.removeEventListener('scroll', updateBounds, true);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [spotlight, updateBounds]);
+  }, [spotlight, updateBounds, dismissSpotlight]);
 
   if (!spotlight || !bounds) return null;
 

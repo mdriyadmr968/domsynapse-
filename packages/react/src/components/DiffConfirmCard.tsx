@@ -6,19 +6,32 @@ export function DiffConfirmCard({ className = '', onApprove, onReject }: DiffCon
   const { pendingAction, pendingDiffChanges, approvePendingAction, rejectPendingAction } =
     useDomSynapse();
 
-  if (!pendingAction || pendingDiffChanges.length === 0) {
-    return null;
-  }
+  const isVisible = Boolean(pendingAction && pendingDiffChanges.length > 0);
 
   const handleApprove = async () => {
     await approvePendingAction();
     onApprove?.();
   };
 
-  const handleReject = () => {
+  const handleReject = React.useCallback(() => {
     rejectPendingAction();
     onReject?.();
-  };
+  }, [rejectPendingAction, onReject]);
+
+  React.useEffect(() => {
+    if (!isVisible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleReject();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible, handleReject]);
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div className={`synapse-diff-backdrop ${className}`} data-testid="synapse-diff-modal">

@@ -257,7 +257,12 @@ export function DomSynapseProvider({
           });
 
           if (!res.ok) {
-            throw new Error(`Server returned HTTP ${res.status}: ${res.statusText}`);
+            const errBody = await res.json().catch(() => null);
+            const errMsg =
+              errBody?.error ||
+              errBody?.message ||
+              `Server returned HTTP ${res.status}: ${res.statusText}`;
+            throw new Error(errMsg);
           }
 
           const data = await res.json();

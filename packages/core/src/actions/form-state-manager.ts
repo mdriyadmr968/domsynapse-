@@ -30,9 +30,17 @@ export class FormStateManager {
           continue;
         }
       } else if (target.name) {
-        el = doc.querySelector(`[name="${target.name}"]`);
+        el =
+          doc.querySelector(`input[type="radio"][name="${target.name}"]:checked`) ||
+          doc.querySelector(`[name="${target.name}"]`);
         if (!effectiveSelector) {
-          effectiveSelector = `[name="${target.name}"]`;
+          if (el?.id) {
+            effectiveSelector = `#${el.id}`;
+          } else if (el instanceof HTMLInputElement && el.type === 'radio' && el.value) {
+            effectiveSelector = `input[name="${target.name}"][value="${el.value}"]`;
+          } else {
+            effectiveSelector = `[name="${target.name}"]`;
+          }
         }
       }
 

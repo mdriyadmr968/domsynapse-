@@ -415,12 +415,21 @@ export class SemanticSerializer {
    */
   public generateSelector(el: Element): string {
     if (el.id) {
-      return `#${CSS.escape ? CSS.escape(el.id) : el.id}`;
+      const safeId =
+        typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+          ? CSS.escape(el.id)
+          : el.id;
+      return `#${safeId}`;
     }
 
     const name = el.getAttribute('name');
     if (name) {
       const tag = el.tagName.toLowerCase();
+      const type = el.getAttribute('type')?.toLowerCase();
+      const val = el.getAttribute('value');
+      if (type === 'radio' && val) {
+        return `${tag}[name="${name}"][value="${val}"]`;
+      }
       return `${tag}[name="${name}"]`;
     }
 

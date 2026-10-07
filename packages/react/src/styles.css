@@ -358,17 +358,14 @@
    SPOTLIGHT OVERLAY
    ========================================= */
 .synapse-spotlight-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  inset: 0;
   pointer-events: none;
   z-index: 999980;
 }
 
 .synapse-spotlight-box {
-  position: absolute;
+  position: fixed;
   border-radius: 8px;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.5);
   border: 2px solid var(--synapse-primary);
