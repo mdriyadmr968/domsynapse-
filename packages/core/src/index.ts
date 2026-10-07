@@ -6,3 +6,4 @@ export * from './actions/action-dispatcher';
 export * from './actions/tool-schemas';
 export * from './actions/action-validator';
 export * from './actions/form-state-manager';
+export * from './sync/cross-tab-sync';

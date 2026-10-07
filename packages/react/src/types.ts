@@ -62,6 +62,10 @@ export interface DomSynapseOptions {
    * Custom PII Shield options
    */
   piiOptions?: PIIShieldOptions;
+  /**
+   * Enable cross-tab synchronization of undo history and spotlight actions (default: true)
+   */
+  enableCrossTabSync?: boolean;
 }
 
 export interface DomSynapseContextValue {

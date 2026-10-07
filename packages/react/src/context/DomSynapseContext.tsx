@@ -7,6 +7,7 @@ import {
   ActionResult,
   SpotlightBounds,
   parseLLMToolCall,
+  CrossTabSync,
 } from '@domsynapse/core';
 import {
   DomSynapseContextValue,
@@ -43,6 +44,7 @@ export function DomSynapseProvider({
 
   const observerRef = useRef<DOMObserver | null>(null);
   const dispatcherRef = useRef<ActionDispatcher | null>(null);
+  const crossTabSyncRef = useRef<CrossTabSync | null>(null);
 
   // Initialize Observer & Dispatcher
   useEffect(() => {
@@ -81,10 +83,43 @@ export function DomSynapseProvider({
     };
   }, [options.autoObserveForms, options.debounceMs, options.trackFocus, options.trackInputs]);
 
+  // Cross-tab synchronization
+  useEffect(() => {
+    if (options.enableCrossTabSync === false || typeof window === 'undefined') return;
+
+    const sync = new CrossTabSync();
+    crossTabSyncRef.current = sync;
+
+    const unsubscribe = sync.subscribe((event) => {
+      if (event.type === 'history_changed' && event.payload) {
+        if (typeof event.payload.canUndo === 'boolean') setCanUndo(event.payload.canUndo);
+        if (typeof event.payload.canRedo === 'boolean') setCanRedo(event.payload.canRedo);
+      } else if (event.type === 'spotlight_triggered' && event.payload) {
+        if (event.payload.selector && event.payload.message) {
+          setSpotlight({
+            selector: event.payload.selector,
+            message: event.payload.message,
+          });
+        }
+      } else if (event.type === 'spotlight_dismissed') {
+        setSpotlight(null);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      sync.close();
+      crossTabSyncRef.current = null;
+    };
+  }, [options.enableCrossTabSync]);
+
   const updateHistoryState = useCallback(() => {
     if (dispatcherRef.current) {
-      setCanUndo(dispatcherRef.current.canUndo());
-      setCanRedo(dispatcherRef.current.canRedo());
+      const u = dispatcherRef.current.canUndo();
+      const r = dispatcherRef.current.canRedo();
+      setCanUndo(u);
+      setCanRedo(r);
+      crossTabSyncRef.current?.broadcast('history_changed', { canUndo: u, canRedo: r });
     }
   }, []);
 
@@ -163,6 +198,10 @@ export function DomSynapseProvider({
           message: action.message,
           bounds,
         });
+        crossTabSyncRef.current?.broadcast('spotlight_triggered', {
+          selector: action.selector,
+          message: action.message,
+        });
       } else if (action.type === 'focus') {
         dispatcherRef.current?.focusElement(action.selector);
       }
@@ -175,6 +214,10 @@ export function DomSynapseProvider({
 
     const result = dispatcherRef.current.execute(pendingAction);
     updateHistoryState();
+    crossTabSyncRef.current?.broadcast('action_executed', {
+      action: pendingAction,
+      result,
+    });
 
     setMessages((prev) => [
       ...prev,
@@ -211,6 +254,7 @@ export function DomSynapseProvider({
 
   const dismissSpotlight = useCallback(() => {
     setSpotlight(null);
+    crossTabSyncRef.current?.broadcast('spotlight_dismissed');
   }, []);
 
   const undo = useCallback((): boolean => {
