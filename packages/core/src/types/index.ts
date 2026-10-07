@@ -166,3 +166,62 @@ export interface FocusAction {
 
 export type DomSynapseAction = FormFillAction | SpotlightAction | FocusAction;
 export type ContextLensAction = DomSynapseAction; // Alias for backward compatibility
+
+/**
+ * Snapshot of a single form field's state before modification
+ */
+export interface FieldSnapshotEntry {
+  selector: string;
+  name?: string;
+  tagName: string;
+  type?: string;
+  previousValue: string;
+  previousChecked?: boolean;
+}
+
+/**
+ * Snapshot of form state for undo/rollback capability
+ */
+export interface FormSnapshot {
+  id: string;
+  timestamp: number;
+  entries: FieldSnapshotEntry[];
+}
+
+/**
+ * Result of validating an action before execution
+ */
+export interface ActionValidationIssue {
+  field?: string;
+  selector?: string;
+  severity: 'error' | 'warning';
+  message: string;
+}
+
+export interface ActionValidationResult {
+  valid: boolean;
+  canExecute: boolean;
+  issues: ActionValidationIssue[];
+}
+
+/**
+ * Result of executing an action
+ */
+export interface ActionResult {
+  success: boolean;
+  action: DomSynapseAction;
+  appliedCount: number;
+  failedCount: number;
+  errors?: string[];
+  snapshot?: FormSnapshot;
+}
+
+/**
+ * Standard LLM Tool definition
+ */
+export interface ToolDefinition {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+

@@ -79,9 +79,12 @@
   - `ActionDispatcher`: React 16+ synthetic prototype setter for inputs, checkboxes, and selects.
   - 15 passing tests in Vitest / Happy-DOM.
 
-- [ ] **Milestone 2: Two-Way Action & Tool Engine**
-  - Tool calling schemas for LLMs (`fill_form`, `spotlight`, `focus`).
-  - Action validation and form state rollback/undo.
+- [x] **Milestone 2: Two-Way Action & Tool Engine** *(COMPLETED)*
+  - Tool calling schemas for LLMs (`fill_form`, `spotlight`, `focus`) with OpenAI, Anthropic, and Gemini adapters.
+  - `ActionValidator`: DOM target existence, interactive state verification, read-only/disabled constraints, and select option checks.
+  - `FormStateManager`: Granular form snapshots, multi-level undo/redo stacks, and atomic rollback mechanism.
+  - `ActionDispatcher`: Upgraded with `ActionResult`, error reporting, and integrated undo/redo/rollback.
+  - 39 passing tests in Vitest / Happy-DOM (24 new tests).
 
 - [ ] **Milestone 3: React Integration & Dock UI (`@domsynapse/react`)**
   - `<DomSynapseProvider>` global state management.

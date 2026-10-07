@@ -1,4 +1,11 @@
-import { DomSynapseAction, FormFillAction, SpotlightAction } from '../types';
+import {
+  DomSynapseAction,
+  FormFillAction,
+  ActionResult,
+  FormSnapshot,
+} from '../types';
+import { ActionValidator } from './action-validator';
+import { FormStateManager } from './form-state-manager';
 
 export interface SpotlightBounds {
   top: number;
@@ -9,10 +16,23 @@ export interface SpotlightBounds {
   right: number;
 }
 
+export interface ActionExecuteOptions {
+  /**
+   * Whether to record snapshot before execution for undo/rollback (default: true)
+   */
+  recordUndo?: boolean;
+  /**
+   * Whether to validate DOM elements before applying (default: true)
+   */
+  validate?: boolean;
+}
+
 export class ActionDispatcher {
   private doc: Document;
+  private validator: ActionValidator;
+  private stateManager: FormStateManager;
 
-  constructor(doc?: Document) {
+  constructor(doc?: Document, stateManager?: FormStateManager) {
     if (doc) {
       this.doc = doc;
     } else if (typeof document !== 'undefined') {
@@ -20,49 +40,172 @@ export class ActionDispatcher {
     } else {
       throw new Error('No Document object provided for ActionDispatcher');
     }
+
+    this.validator = new ActionValidator(this.doc);
+    this.stateManager = stateManager || new FormStateManager();
   }
 
   /**
-   * Executes a DomSynapse action
+   * Executes a DomSynapse action with validation and automatic rollback snapshotting
    */
-  public execute(action: DomSynapseAction): boolean {
-    switch (action.type) {
-      case 'fill_form':
-        return this.executeFormFill(action);
-      case 'focus':
-        return this.focusElement(action.selector);
-      case 'spotlight':
-        return this.focusElement(action.selector);
-      default:
-        return false;
+  public execute(
+    action: DomSynapseAction,
+    options: ActionExecuteOptions = { recordUndo: true, validate: true }
+  ): ActionResult {
+    const shouldValidate = options.validate !== false;
+    const shouldRecordUndo = options.recordUndo !== false;
+
+    // 1. Validation check
+    if (shouldValidate) {
+      const validation = this.validator.validate(action);
+      if (!validation.canExecute) {
+        return {
+          success: false,
+          action,
+          appliedCount: 0,
+          failedCount: action.type === 'fill_form' ? action.fields.length : 1,
+          errors: validation.issues.map((i) => i.message),
+        };
+      }
     }
+
+    // 2. Snapshot capture if filling a form
+    let snapshot: FormSnapshot | undefined;
+    if (action.type === 'fill_form' && shouldRecordUndo) {
+      snapshot = this.stateManager.captureSnapshot(this.doc, action.fields);
+    }
+
+    // 3. Execution
+    let success = false;
+    let appliedCount = 0;
+    let failedCount = 0;
+    const errors: string[] = [];
+
+    switch (action.type) {
+      case 'fill_form': {
+        for (const field of action.fields) {
+          let targetEl: HTMLElement | null = null;
+          if (field.selector) {
+            try {
+              targetEl = this.doc.querySelector(field.selector);
+            } catch (err: any) {
+              failedCount++;
+              errors.push(`Invalid selector "${field.selector}": ${err.message}`);
+              continue;
+            }
+          } else if (field.name) {
+            targetEl = this.doc.querySelector(`[name="${field.name}"]`);
+          }
+
+          if (!targetEl) {
+            failedCount++;
+            errors.push(`Target field "${field.selector || field.name}" not found`);
+            continue;
+          }
+
+          const fieldSuccess = this.setFieldValue(targetEl, field.value);
+          if (fieldSuccess) {
+            appliedCount++;
+          } else {
+            failedCount++;
+            errors.push(`Failed to set value on "${field.selector || field.name}"`);
+          }
+        }
+
+        success = appliedCount > 0 && failedCount === 0;
+        if (success && snapshot) {
+          this.stateManager.pushSnapshot(snapshot);
+        }
+        break;
+      }
+
+      case 'focus':
+      case 'spotlight': {
+        success = this.focusElement(action.selector);
+        if (success) {
+          appliedCount = 1;
+        } else {
+          failedCount = 1;
+          errors.push(`Element "${action.selector}" could not be focused`);
+        }
+        break;
+      }
+
+      default:
+        return {
+          success: false,
+          action,
+          appliedCount: 0,
+          failedCount: 1,
+          errors: [`Unknown action type: ${(action as any).type}`],
+        };
+    }
+
+    return {
+      success,
+      action,
+      appliedCount,
+      failedCount,
+      errors: errors.length > 0 ? errors : undefined,
+      snapshot,
+    };
   }
 
   /**
-   * Fills multiple fields specified in a form fill action
+   * Fills multiple fields specified in a form fill action directly without options
    */
   public executeFormFill(action: FormFillAction): boolean {
-    let allSucceeded = true;
+    const result = this.execute(action, { recordUndo: true, validate: false });
+    return result.success;
+  }
 
-    for (const field of action.fields) {
-      let targetEl: HTMLElement | null = null;
+  /**
+   * Undoes the last form fill action, restoring previous values
+   */
+  public undo(): boolean {
+    const revertedSnapshot = this.stateManager.undo(
+      this.doc,
+      (el, val) => this.setFieldValue(el, val)
+    );
+    return revertedSnapshot !== null;
+  }
 
-      if (field.selector) {
-        targetEl = this.doc.querySelector(field.selector);
-      } else if (field.name) {
-        targetEl = this.doc.querySelector(`[name="${field.name}"]`);
-      }
+  /**
+   * Redoes the last undone form fill action
+   */
+  public redo(): boolean {
+    const reappliedSnapshot = this.stateManager.redo(
+      this.doc,
+      (el, val) => this.setFieldValue(el, val)
+    );
+    return reappliedSnapshot !== null;
+  }
 
-      if (!targetEl) {
-        allSucceeded = false;
-        continue;
-      }
+  /**
+   * Rolls back form fields to a specific snapshot
+   */
+  public rollback(snapshot: FormSnapshot): boolean {
+    return this.stateManager.rollback(
+      this.doc,
+      snapshot,
+      (el, val) => this.setFieldValue(el, val)
+    );
+  }
 
-      const success = this.setFieldValue(targetEl, field.value);
-      if (!success) allSucceeded = false;
-    }
+  public canUndo(): boolean {
+    return this.stateManager.canUndo();
+  }
 
-    return allSucceeded;
+  public canRedo(): boolean {
+    return this.stateManager.canRedo();
+  }
+
+  public getStateManager(): FormStateManager {
+    return this.stateManager;
+  }
+
+  public getValidator(): ActionValidator {
+    return this.validator;
   }
 
   /**
@@ -72,7 +215,8 @@ export class ActionDispatcher {
     try {
       if (element instanceof HTMLInputElement) {
         if (element.type === 'checkbox' || element.type === 'radio') {
-          const shouldCheck = value === 'true' || value === '1' || value === 'checked' || element.value === value;
+          const shouldCheck =
+            value === 'true' || value === '1' || value === 'checked' || element.value === value;
           element.checked = shouldCheck;
           this.dispatchReactInputEvent(element, shouldCheck, 'checked');
         } else {
