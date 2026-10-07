@@ -53,9 +53,10 @@
 
 | Package | Version | Description |
 | :--- | :--- | :--- |
-| [`@domsynapse/core`](./packages/core) | `0.1.0` | Framework-agnostic DOM observer, semantic serializer, PII shield, and action engine. |
-| [`@domsynapse/react`](./packages/react) | `0.1.0` | React context provider, collapsible dock, spotlight overlay, and autofill diff modals. |
-| [`@domsynapse/server`](./packages/server) | `0.1.0` | Edge handlers & LLM proxies for Next.js App Router, Express, and Hono. |
+| [`@domsynapse/core`](./packages/core) | `0.1.0` | Framework-agnostic DOM observer, semantic serializer, PII shield, cross-tab sync, and action engine. |
+| [`@domsynapse/react`](./packages/react) | `0.1.0` | React context provider, voice-to-action dock, spotlight overlay, and autofill diff modals. |
+| [`@domsynapse/server`](./packages/server) | `0.1.0` | Edge handlers & LLM streaming proxies for Next.js App Router, Express, and Hono. |
+| [`@domsynapse/extension`](./packages/extension) | `0.1.0` | Manifest V3 browser extension wrapper for universal web copilot injection. |
 | [`demo`](./apps/demo) | `0.1.0` | Interactive Next.js playground testing multi-step forms and copilot actions. |
 
 ---
@@ -111,9 +112,13 @@ export const POST = createDomSynapseNextHandler({
 
 - **⚡ Semantic DOM Pruner**: Reduces HTML token overhead by ~85% before feeding context to LLMs.
 - **🛡️ PII Masking Shield**: Automatic redaction of credit cards, passwords, SSNs, and custom `data-synapse-mask` fields.
-- **🎯 Two-Way Element Spotlight**: Directs user attention with pulsing glows and instructive popovers.
+- **🎯 Two-Way Element Spotlight**: Directs user attention with pulsing glows, smooth scrolling, and instructive popovers.
 - **🔍 Diff Review & Autofill**: Users inspect proposed form changes before applying them with a single click.
 - **↩️ Multi-Level Undo & Rollback**: Safe atomic undo/redo for automated form actions.
+- **🌊 Server-Sent Events (SSE) Streaming**: Token-by-token streaming with live action chunk parsing for ultra-low latency.
+- **🎙️ Voice-to-Action Dictation**: Real-time speech recognition for hands-free form interaction and conversational commands.
+- **🔄 Cross-Tab Synchronization**: Zero-backend `BroadcastChannel` syncing of undo/redo history and spotlights across tabs.
+- **🧩 Universal Chrome/Edge Extension**: Inject DomSynapse into any web application or SaaS without code modifications.
 - **🌐 Framework Agnostic Core**: Core engine runs in any modern browser without React or dependencies.
 
 ---
