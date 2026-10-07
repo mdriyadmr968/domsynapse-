@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DomSynapse Settings</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      width: 320px;
+      padding: 16px;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 13px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 14px;
+    }
+    .logo {
+      width: 24px;
+      height: 24px;
+      color: #4f46e5;
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 12px;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+    input[type="text"]:focus {
+      border-color: #4f46e5;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .checkbox-group input {
+      accent-color: #4f46e5;
+      cursor: pointer;
+    }
+    .checkbox-group label {
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+    .btn-save {
+      width: 100%;
+      background: #4f46e5;
+      color: #ffffff;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-save:hover {
+      background: #4338ca;
+    }
+    .status-msg {
+      margin-top: 8px;
+      font-size: 11.5px;
+      text-align: center;
+      color: #16a34a;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path>
+    </svg>
+    <div class="title">DomSynapse Copilot</div>
+  </div>
+
+  <div class="form-group">
+    <label for="endpoint">AI Backend Endpoint</label>
+    <input type="text" id="endpoint" placeholder="http://localhost:3000/api/domsynapse" />
+  </div>
+
+  <div class="checkbox-group">
+    <input type="checkbox" id="enabled" checked />
+    <label for="enabled">Enable copilot on webpages</label>
+  </div>
+
+  <div class="checkbox-group">
+    <input type="checkbox" id="stream" checked />
+    <label for="stream">Enable SSE token streaming</label>
+  </div>
+
+  <button id="save-btn" class="btn-save">Save Settings</button>
+  <div id="status-msg" class="status-msg"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

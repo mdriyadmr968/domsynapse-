@@ -1,0 +1,22 @@
+{
+  "name": "@domsynapse/extension",
+  "version": "0.1.0",
+  "description": "Chrome/Edge extension wrapper for DomSynapse DOM-Aware AI Web Copilot",
+  "author": "mdriyadmr968 <mdriyadmr968@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@domsynapse/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.280",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

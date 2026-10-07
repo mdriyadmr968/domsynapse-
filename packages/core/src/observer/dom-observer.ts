@@ -140,6 +140,13 @@ export class DOMObserver {
   }
 
   /**
+   * Returns current or cached page context
+   */
+  public getContext(): PageContext {
+    return this.lastContext || this.serializer.serialize(this.root);
+  }
+
+  /**
    * Formats the active context for LLM prompt ingestion
    */
   public formatContextForLLM(context?: PageContext): string {

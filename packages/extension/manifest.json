@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "DomSynapse AI Web Copilot",
+  "version": "0.1.0",
+  "description": "Context-aware AI form copilot, spotlight guidance, and intelligent autofill for any website",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DomSynapse Settings"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
