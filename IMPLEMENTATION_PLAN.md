@@ -94,9 +94,11 @@
   - Custom CSS theming with CSS variables and dual ESM + CJS + DTS builds.
   - 5 Vitest / Happy-DOM component tests (44 total workspace tests).
 
-- [ ] **Milestone 4: Backend Edge Handlers (`@domsynapse/server`)**
-  - Next.js App Router, Express, and Hono handlers.
-  - SSE streaming bridge and API key security proxy.
+- [x] **Milestone 4: Backend Edge Handlers (`@domsynapse/server`)** *(COMPLETED)*
+  - `DomSynapseHandler`: Provider proxy supporting OpenAI, Anthropic Claude, and Google Gemini with auto tool parsing.
+  - Rate limiting, `onBeforeRequest` security interceptor, and live `PageContext` system prompt builder.
+  - Framework adapters: `createDomSynapseNextHandler` (Next.js App Router), `createDomSynapseExpressHandler` (Express), and `createDomSynapseHonoHandler` (Hono).
+  - 10 Vitest tests (54 total workspace tests) and full ESM + CJS + DTS bundle.
 
 - [ ] **Milestone 5: Interactive Demo App & NPM Release**
   - Next.js demo testing multi-step forms and on-page copilot assist.
