@@ -1,0 +1,47 @@
+{
+  "name": "@domsynapse/react",
+  "version": "0.1.0",
+  "description": "React integration, context provider, collapsible dock, spotlight overlay, and diff preview for DomSynapse",
+  "author": "",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0 || >=19.0.0",
+    "react-dom": ">=18.0.0 || >=19.0.0"
+  },
+  "dependencies": {
+    "@domsynapse/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "happy-dom": "^15.11.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

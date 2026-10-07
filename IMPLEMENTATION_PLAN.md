@@ -86,11 +86,13 @@
   - `ActionDispatcher`: Upgraded with `ActionResult`, error reporting, and integrated undo/redo/rollback.
   - 39 passing tests in Vitest / Happy-DOM (24 new tests).
 
-- [ ] **Milestone 3: React Integration & Dock UI (`@domsynapse/react`)**
-  - `<DomSynapseProvider>` global state management.
-  - Collapsible `<DomSynapseDock>` with real-time "What I See" screen context pill.
-  - `<SpotlightOverlay>` with animated element highlights.
-  - `<DiffConfirmCard>` interactive preview modal before autofilling.
+- [x] **Milestone 3: React Integration & Dock UI (`@domsynapse/react`)** *(COMPLETED)*
+  - `<DomSynapseProvider>` global context with live DOM observation, undo/redo state, and streaming action bridge.
+  - Collapsible `<DomSynapseDock>` with real-time "What I See" screen context pill, quick suggestions chips, and chat.
+  - `<SpotlightOverlay>` with animated element glow and instruction card.
+  - `<DiffConfirmCard>` interactive before/after preview modal before autofilling.
+  - Custom CSS theming with CSS variables and dual ESM + CJS + DTS builds.
+  - 5 Vitest / Happy-DOM component tests (44 total workspace tests).
 
 - [ ] **Milestone 4: Backend Edge Handlers (`@domsynapse/server`)**
   - Next.js App Router, Express, and Hono handlers.

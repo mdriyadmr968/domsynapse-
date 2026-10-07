@@ -110,6 +110,13 @@ export class DOMObserver {
   }
 
   /**
+   * Alias for disconnect()
+   */
+  public stop(): void {
+    this.disconnect();
+  }
+
+  /**
    * Subscribes to context changes
    */
   public onContextChange(listener: ContextChangeListener): () => void {
