@@ -265,22 +265,91 @@ export function DomSynapseProvider({
             throw new Error(errMsg);
           }
 
-          const data = await res.json();
-          const assistantMsg: CopilotMessage = {
-            id: `assistant_${Date.now()}`,
-            role: 'assistant',
-            content: data.reply || data.content || data.message || '',
-            timestamp: Date.now(),
-          };
+          const contentType = res.headers.get('content-type') || '';
 
-          setMessages((prev) => [...prev, assistantMsg]);
+          if (contentType.includes('text/event-stream') && res.body) {
+            const assistantId = `assistant_${Date.now()}`;
+            let accumulatedReply = '';
+            let stagedAction: DomSynapseAction | undefined;
 
-          if (data.action) {
-            await handleProposedAction(data.action);
-          } else if (data.tool_call) {
-            const parsed = parseLLMToolCall(data.tool_call.name, data.tool_call.arguments);
-            if (parsed.success) {
-              await handleProposedAction(parsed.action);
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: assistantId,
+                role: 'assistant',
+                content: '',
+                timestamp: Date.now(),
+                isStreaming: true,
+              },
+            ]);
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith('data:')) continue;
+                const dataStr = trimmed.slice(5).trim();
+                if (dataStr === '[DONE]') continue;
+
+                try {
+                  const parsed = JSON.parse(dataStr);
+                  if (parsed.type === 'token' && parsed.delta) {
+                    accumulatedReply += parsed.delta;
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m.id === assistantId
+                          ? { ...m, content: accumulatedReply, isStreaming: true }
+                          : m
+                      )
+                    );
+                  } else if (parsed.type === 'action' && parsed.action) {
+                    stagedAction = parsed.action;
+                  }
+                } catch {
+                  // ignore chunk parse error
+                }
+              }
+            }
+
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, isStreaming: false, action: stagedAction }
+                  : m
+              )
+            );
+
+            if (stagedAction) {
+              await handleProposedAction(stagedAction);
+            }
+          } else {
+            const data = await res.json();
+            const assistantMsg: CopilotMessage = {
+              id: `assistant_${Date.now()}`,
+              role: 'assistant',
+              content: data.reply || data.content || data.message || '',
+              timestamp: Date.now(),
+            };
+
+            setMessages((prev) => [...prev, assistantMsg]);
+
+            if (data.action) {
+              await handleProposedAction(data.action);
+            } else if (data.tool_call) {
+              const parsed = parseLLMToolCall(data.tool_call.name, data.tool_call.arguments);
+              if (parsed.success) {
+                await handleProposedAction(parsed.action);
+              }
             }
           }
         } else {

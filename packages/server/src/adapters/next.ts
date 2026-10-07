@@ -6,7 +6,7 @@ import { DomSynapseServerOptions } from '../types';
  *
  * Example:
  * ```ts
- * export const POST = createDomSynapseNextHandler({ provider: 'openai' });
+ * export const POST = createDomSynapseNextHandler({ provider: 'openai', stream: true });
  * ```
  */
 export function createDomSynapseNextHandler(options: DomSynapseServerOptions = {}) {
@@ -14,7 +14,25 @@ export function createDomSynapseNextHandler(options: DomSynapseServerOptions = {
 
   return async function POST(request: Request) {
     try {
+      const isStream =
+        options.stream ||
+        request.headers.get('accept')?.includes('text/event-stream') ||
+        request.headers.get('x-domsynapse-stream') === 'true';
+
       const body = await request.json();
+
+      if (isStream) {
+        const stream = handler.handleStreamRequest(body);
+        return new Response(stream, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache, no-transform',
+            Connection: 'keep-alive',
+          },
+        });
+      }
+
       const response = await handler.handleRequest(body);
       return new Response(JSON.stringify(response), {
         status: 200,

@@ -78,6 +78,55 @@ export class DomSynapseHandler {
     }
   }
 
+  /**
+   * Processes a DomSynapse copilot request and returns an SSE ReadableStream
+   */
+  public handleStreamRequest(
+    payload: DomSynapseServerRequest
+  ): ReadableStream<Uint8Array> {
+    const encoder = new TextEncoder();
+    const self = this;
+
+    return new ReadableStream<Uint8Array>({
+      async start(controller) {
+        try {
+          const response = await self.handleRequest(payload);
+
+          // Stream reply in text word fragments
+          const words = response.reply.split(/(\s+)/);
+          for (const word of words) {
+            if (!word) continue;
+            const chunk = {
+              type: 'token',
+              delta: word,
+            };
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
+          }
+
+          // If an action was produced, stream action chunk
+          if (response.action) {
+            const actionChunk = {
+              type: 'action',
+              action: response.action,
+            };
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(actionChunk)}\n\n`));
+          }
+
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`));
+          controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
+          controller.close();
+        } catch (err: any) {
+          const errorChunk = {
+            type: 'error',
+            error: err.message || 'Stream processing failed',
+          };
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorChunk)}\n\n`));
+          controller.close();
+        }
+      },
+    });
+  }
+
   private async handleOpenAI(
     req: DomSynapseServerRequest,
     fetchFn: typeof fetch

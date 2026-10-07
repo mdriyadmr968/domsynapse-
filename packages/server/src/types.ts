@@ -22,6 +22,13 @@ export interface DomSynapseServerResponse {
   };
 }
 
+export interface StreamChunk {
+  type: 'token' | 'action' | 'done' | 'error';
+  delta?: string;
+  action?: DomSynapseAction;
+  error?: string;
+}
+
 export interface DomSynapseServerOptions {
   /**
    * LLM provider ('openai', 'anthropic', 'gemini', 'custom')
@@ -41,6 +48,10 @@ export interface DomSynapseServerOptions {
    * Base URL for the LLM API if using a proxy or alternate endpoint
    */
   baseURL?: string;
+  /**
+   * Whether to stream responses using Server-Sent Events (SSE)
+   */
+  stream?: boolean;
   /**
    * Additional custom system instructions to append
    */
