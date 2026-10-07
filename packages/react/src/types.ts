@@ -182,6 +182,10 @@ export interface DomSynapseDockProps {
    * (useful when you render them customly in your layout)
    */
   hideOverlayComponents?: boolean;
+  /**
+   * Whether to enable speech-to-text voice input in the dock bar (default: true)
+   */
+  enableVoiceInput?: boolean;
 }
 
 export interface SpotlightOverlayProps {

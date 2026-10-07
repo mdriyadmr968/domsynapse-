@@ -54,5 +54,8 @@ describe('DomSynapseDock Component', () => {
     const panel = container.querySelector('[data-testid="synapse-dock-panel"]');
     expect(panel).not.toBeNull();
     expect(panel?.textContent).toContain('Test Copilot');
+
+    const micBtn = container.querySelector('.synapse-mic-btn');
+    expect(micBtn).not.toBeNull();
   });
 });

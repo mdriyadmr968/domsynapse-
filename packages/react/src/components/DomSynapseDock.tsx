@@ -17,6 +17,7 @@ export function DomSynapseDock({
   suggestedPrompts = DEFAULT_SUGGESTIONS,
   className = '',
   hideOverlayComponents = false,
+  enableVoiceInput = true,
 }: DomSynapseDockProps) {
   const {
     isOpen,
@@ -33,9 +34,61 @@ export function DomSynapseDock({
   } = useDomSynapse();
 
   const [input, setInput] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const posClass = `synapse-pos-${position}`;
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition =
+      typeof window !== 'undefined'
+        ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+        : null;
+
+    if (!SpeechRecognition) {
+      alert('Speech Recognition is not supported in this browser.');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang =
+        typeof navigator !== 'undefined' ? navigator.language || 'en-US' : 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0].transcript)
+          .join('');
+        setInput(transcript);
+      };
+
+      recognition.onerror = () => {
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch {
+      setIsListening(false);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -248,6 +301,31 @@ export function DomSynapseDock({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
+              {enableVoiceInput && (
+                <button
+                  type="button"
+                  className={`synapse-mic-btn ${isListening ? 'active' : ''}`}
+                  onClick={toggleVoiceInput}
+                  title={isListening ? 'Stop recording voice' : 'Voice input (Click to speak)'}
+                  aria-label={isListening ? 'Stop voice recording' : 'Start voice recording'}
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                  </svg>
+                </button>
+              )}
               <button
                 type="button"
                 className="synapse-send-btn"

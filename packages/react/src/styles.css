@@ -325,6 +325,31 @@
   cursor: not-allowed;
 }
 
+.synapse-mic-btn {
+  background: var(--synapse-surface);
+  border: 1px solid var(--synapse-border);
+  color: var(--synapse-text-muted);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.synapse-mic-btn:hover {
+  background: var(--synapse-border);
+  color: var(--synapse-text);
+}
+
+.synapse-mic-btn.active {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #dc2626;
+  animation: synapse-pulse 1.2s infinite;
+}
+
 /* Undo / Redo toolbar */
 .synapse-history-bar {
   padding: 4px 14px;
