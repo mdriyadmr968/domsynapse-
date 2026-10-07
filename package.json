@@ -1,0 +1,16 @@
+{
+  "name": "domsynapse-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DomSynapse: Neural context-aware in-app AI copilot",
+  "packageManager": "pnpm@10.27.0",
+  "scripts": {
+    "build": "pnpm --filter \"@domsynapse/*\" run build",
+    "test": "pnpm --filter \"@domsynapse/*\" run test",
+    "lint": "pnpm --filter \"@domsynapse/*\" run lint",
+    "clean": "pnpm --recursive run clean"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
